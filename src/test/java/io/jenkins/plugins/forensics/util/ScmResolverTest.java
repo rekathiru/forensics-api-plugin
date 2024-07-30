@@ -111,6 +111,20 @@ class ScmResolverTest {
         assertThat(new ScmResolver().getScms(run, "key")).hasSize(1);
     }
 
+    @Test
+    void shouldFilterScms() {
+        Job<?, ?> pipeline = mock(Job.class, withSettings().extraInterfaces(SCMTriggerItem.class));
+
+        SCM first = createScm("key");
+        SCM second = createScm("otherKey");
+        when(((SCMTriggerItem) pipeline).getSCMs()).thenAnswer(i -> Arrays.asList(first, second));
+
+        Run<?, ?> run = createRunFor(pipeline);
+        assertThat(new ScmResolver().getScms(run, "ey")).hasSize(2);
+        assertThat(new ScmResolver().getScms(run, "other")).hasSize(1);
+        assertThat(new ScmResolver().getScms(run, "key")).hasSize(1);
+    }
+
     private SCM createScm(final String key) {
         SCM first = mock(SCM.class);
         when(first.getKey()).thenReturn(key);
