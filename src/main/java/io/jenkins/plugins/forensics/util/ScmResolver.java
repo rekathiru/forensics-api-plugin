@@ -54,10 +54,21 @@ public class ScmResolver {
      * @return the SCMs
      */
     public Collection<? extends SCM> getScms(final Run<?, ?> run, final String keyFilter) {
-        return getScms(run)
-                .stream()
-                .filter(r -> r.getKey().contains(keyFilter))
-                .collect(Collectors.toList());
+        if(keyFilter.endsWith("/")) {
+            //equal check, removing added back slash
+            String newKeyFilter =  (keyFilter == null || keyFilter.isEmpty())
+                    ? null
+                    : (keyFilter.substring(0, keyFilter.length() - 1));
+            return getScms(run)
+                    .stream()
+                    .filter(r -> r.getKey().equals(newKeyFilter))
+                    .collect(Collectors.toList());
+        } else {
+            return getScms(run)
+                    .stream()
+                    .filter(r -> r.getKey().contains(keyFilter))
+                    .collect(Collectors.toList());
+        }
     }
 
     /**

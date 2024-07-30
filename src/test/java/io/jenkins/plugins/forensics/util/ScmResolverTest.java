@@ -111,6 +111,22 @@ class ScmResolverTest {
         assertThat(new ScmResolver().getScms(run, "key")).hasSize(1);
     }
 
+    @Test
+    void shouldFilterAbsoluteScms() {
+        Job<?, ?> pipeline = mock(Job.class, withSettings().extraInterfaces(SCMTriggerItem.class));
+
+        SCM first = createScm("key");
+        SCM second = createScm("otherKey");
+        SCM third = createScm("key-shared");
+        when(((SCMTriggerItem) pipeline).getSCMs()).thenAnswer(i -> Arrays.asList(first, second,third));
+
+        Run<?, ?> run = createRunFor(pipeline);
+        assertThat(new ScmResolver().getScms(run, "key/")).hasSize(1);
+        assertThat(new ScmResolver().getScms(run, "key")).hasSize(2);
+        assertThat(new ScmResolver().getScms(run, null)).hasSize(0);
+
+    }
+    
     private SCM createScm(final String key) {
         SCM first = mock(SCM.class);
         when(first.getKey()).thenReturn(key);
